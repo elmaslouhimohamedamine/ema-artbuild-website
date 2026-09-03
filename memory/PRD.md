@@ -10,22 +10,19 @@ Créer une landing page premium, visuelle et multilingue pour EMA ARTBUILD, orie
 - Hero vidéo utilisateur : WebM léger en priorité, MP4 H.264 de secours et poster extrait du clip, tous dans frontend/public.
 
 ## Réalisé
-- Landing complète FR/EN/AR avec RTL arabe, navigation responsive et menu mobile.
-- Hero vidéo cinématique fourni par le client, lecture automatique validée sur mobile, cadrage cover sans déformation et poster de secours.
+- Landing complète FR/EN/AR avec RTL arabe et navigation responsive simplifiée : Accueil, Services, Réalisations, Notre approche et Contact.
+- Hero vidéo cinématique utilisateur, lecture automatique validée sur mobile, cadrage cover sans déformation et poster de secours.
 - Assistant EMA avec GPT-5.6 Terra : chat flottant partout sur le site et assistant intégré à côté du formulaire de devis.
-- L’assistant qualifie un projet, répond sur les services, le processus et les zones, conserve l’historique de session et oriente vers le formulaire.
 - Logo EMA ARTBUILD intégré au header, footer et animation circulaire, avec placement mobile distinct sans chevauchement.
+- La section À propos a été retirée, ainsi que le bloc titre/texte de contact : la section finale va désormais directement à l’assistant et au formulaire.
 - Services en beige pierre #D8D1C5 ; zone affichée : Marrakech sans “& région”.
 - Coordonnées : +212 666 777 456 et +212 666 777 446 sous Téléphone. WhatsApp dirige vers +212 666 777 456.
-- Réseaux : Instagram, Facebook, TikTok, Behance et WhatsApp ; liens Reels exacts conservés.
 - Formulaire sans Surface, avec JPG/PNG/WEBP/PDF, validation et traçabilité après envoi Resend.
-- SEO de base : title, meta description, Open Graph, favicon, robots.txt et sitemap.xml.
 
 ## Validation
 - Build React validé.
-- Tests backend/front-end : 6 tests passés, y compris streaming assistant et garde-fous.
-- Vidéo hero WebM validée : readyState 4, lecture automatique active ; responsive mobile validé.
-- Assistant flottant et intégré validés sur l’URL publique.
+- Tests backend/front-end : streaming assistant, vidéo hero et responsive mobile validés.
+- La suppression des sections et des liens correspondants est validée dans le navigateur.
 
 ## Backlog priorisé
 ### P0

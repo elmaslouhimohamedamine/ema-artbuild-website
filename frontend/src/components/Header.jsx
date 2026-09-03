@@ -2,8 +2,8 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const links = [
-  ["Accueil", "accueil"], ["À propos", "apropos"], ["Services", "services"],
-  ["Réalisations", "realisations"], ["Notre approche", "processus"], ["Contact", "contact"],
+  [0, "Accueil", "accueil"], [2, "Services", "services"], [3, "Réalisations", "realisations"],
+  [4, "Notre approche", "processus"], [5, "Contact", "contact"],
 ];
 
 export default function Header({ t, locale, setLocale }) {
@@ -13,7 +13,7 @@ export default function Header({ t, locale, setLocale }) {
     <header className="site-header" data-testid="site-header">
       <button className="wordmark" data-testid="brand-home-button" onClick={() => goTo("accueil")} aria-label="EMA ARTBUILD — accueil"><img className="brand-logo" src="/images/ema-logo.png" alt="EMA ARTBUILD" /></button>
       <nav className="desktop-nav" aria-label="Navigation principale" data-testid="desktop-navigation">
-        {links.map(([fallback, id], index) => <button key={id} data-testid={`header-nav-${id}`} onClick={() => goTo(id)}>{t.nav[index] || fallback}</button>)}
+        {links.map(([copyIndex, fallback, id]) => <button key={id} data-testid={`header-nav-${id}`} onClick={() => goTo(id)}>{t.nav[copyIndex] || fallback}</button>)}
       </nav>
       <div className="header-actions">
         <div className="language-switch" data-testid="language-switcher" aria-label="Choisir la langue">
@@ -24,7 +24,7 @@ export default function Header({ t, locale, setLocale }) {
       </div>
       <AnimatePresence>
         {open && <motion.nav className="mobile-nav" data-testid="mobile-navigation" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.28 }}>
-          {links.map(([fallback, id], index) => <button key={id} data-testid={`mobile-nav-${id}`} onClick={() => goTo(id)}>{t.nav[index] || fallback}<span>↗</span></button>)}
+          {links.map(([copyIndex, fallback, id]) => <button key={id} data-testid={`mobile-nav-${id}`} onClick={() => goTo(id)}>{t.nav[copyIndex] || fallback}<span>↗</span></button>)}
           <button data-testid="mobile-quote-button" className="button button-dark" onClick={() => goTo("contact")}>{t.quote}</button>
         </motion.nav>}
       </AnimatePresence>
