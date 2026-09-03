@@ -14,15 +14,19 @@ Créer une landing page premium, visuelle et multilingue pour EMA ARTBUILD, orie
 - Hero vidéo cinématique utilisateur, lecture automatique validée sur mobile, cadrage cover sans déformation et poster de secours.
 - Assistant EMA avec GPT-5.6 Terra : chat flottant partout sur le site et assistant intégré à côté du formulaire de devis.
 - Logo EMA ARTBUILD intégré au header, footer et animation circulaire, avec placement mobile distinct sans chevauchement.
-- La section À propos a été retirée, ainsi que le bloc titre/texte de contact : la section finale va désormais directement à l’assistant et au formulaire.
+- La section À propos et le bloc titre/texte de contact sont retirés : la section finale va directement à l’assistant et au formulaire.
 - Services en beige pierre #D8D1C5 ; zone affichée : Marrakech sans “& région”.
 - Coordonnées : +212 666 777 456 et +212 666 777 446 sous Téléphone. WhatsApp dirige vers +212 666 777 456.
-- Formulaire sans Surface, avec JPG/PNG/WEBP/PDF, validation et traçabilité après envoi Resend.
+
+## Correctif critique de navigation
+- Cause réelle : le ChatAssistant intégré exécutait scrollIntoView() lors de son montage, ce qui faisait défiler le document jusqu’à Contact au chargement.
+- Correctif : l’assistant fait désormais défiler uniquement son conteneur interne via scrollTop.
+- L’historique navigateur est réglé sur manual. La racine et tout rafraîchissement sans hash vont à scrollY=0 ; seul #contact ouvre volontairement Contact.
+- Accueil utilise window.scrollTo(0) et Contact conserve le scroll fluide sans modifier l’URL.
 
 ## Validation
-- Build React validé.
-- Tests backend/front-end : streaming assistant, vidéo hero et responsive mobile validés.
-- La suppression des sections et des liens correspondants est validée dans le navigateur.
+- Production build React validé.
+- Régression indépendante validée desktop et mobile : racine à 0, Accueil à 0, Contact sans hash, rafraîchissement à 0, #contact intentionnel et chat sans défilement global.
 
 ## Backlog priorisé
 ### P0

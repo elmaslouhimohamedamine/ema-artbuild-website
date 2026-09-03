@@ -1,0 +1,34 @@
+{
+  "summary": "Executed frontend-only regression verification on public URL for critical homepage scroll behavior across desktop/mobile, hash policy, navigation-to-contact behavior, and ChatAssistant scroll containment. All requested flows passed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_3.json"
+  ],
+  "action_items": [
+    "No blocking fixes required for the requested critical scroll regression scope.",
+    "Optional observability note: browser logs show REQUEST FAILED net::ERR_ABORTED for /cdn-cgi/rum and occasionally /api/assistant/chat at teardown; no user-facing breakage reproduced in UI behavior checks."
+  ],
+  "critical_code_review_comments": [
+    "No critical code defects found in reviewed scroll/navigation/chat files for this scope."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_3.json"
+  ],
+  "success_rate": {
+    "backend": "N/A (skipped by request)",
+    "frontend": "100%"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Validated on https://artbuild-design.preview.emergentagent.com. Desktop: root load scrollY=0, contact nav without URL hash, Accueil/logo return to 0, root refresh returns 0, intentional /#contact reaches contact, chat mount keeps page at 0, floating assistant prompt keeps window scroll unchanged while messages container scrolls. Mobile (390x844): root starts at 0, contact scroll works without hash mutation, Accueil returns to 0, intentional /#contact reaches contact. No in-page error selectors detected.",
+  "rca of the issue": "Regression source appears correctly mitigated: embedded ChatAssistant now scrolls only its internal messages container (scrollTop) rather than using element-level scrollIntoView that could move the full document. Initial-load policy in index.js and App.js enforces explicit top-on-root and #contact-only hash targeting, preventing random restore-to-contact behavior on root refresh/open."
+}

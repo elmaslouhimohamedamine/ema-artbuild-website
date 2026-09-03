@@ -6,9 +6,9 @@ const links = [
   [4, "Notre approche", "processus"], [5, "Contact", "contact"],
 ];
 
-export default function Header({ t, locale, setLocale }) {
+export default function Header({ t, locale, setLocale, onNavigate }) {
   const [open, setOpen] = useState(false);
-  const goTo = (id) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setOpen(false); };
+  const goTo = (id) => { onNavigate(id); setOpen(false); };
   return (
     <header className="site-header" data-testid="site-header">
       <button className="wordmark" data-testid="brand-home-button" onClick={() => goTo("accueil")} aria-label="EMA ARTBUILD — accueil"><img className="brand-logo" src="/images/ema-logo.png" alt="EMA ARTBUILD" /></button>

@@ -16,9 +16,9 @@ const getSessionId = () => {
 
 export default function ChatAssistant({ locale, mode = "floating", onQuoteClick }) {
   const ui = copy[locale]; const [open, setOpen] = useState(mode === "embedded"); const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([{ role: "assistant", content: ui.greeting }]); const [loading, setLoading] = useState(false); const endRef = useRef(null);
+  const [messages, setMessages] = useState([{ role: "assistant", content: ui.greeting }]); const [loading, setLoading] = useState(false); const messagesRef = useRef(null);
   useEffect(() => { setMessages((current) => current.length === 1 ? [{ role: "assistant", content: ui.greeting }] : current); }, [locale, ui.greeting]);
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, [messages, loading]);
+  useEffect(() => { const container = messagesRef.current; if (container) container.scrollTop = container.scrollHeight; }, [messages, loading]);
   const ask = async (rawMessage) => {
     const text = rawMessage.trim(); if (!text || loading) return;
     setInput(""); setLoading(true); setMessages((current) => [...current, { role: "visitor", content: text }, { role: "assistant", content: "" }]);
@@ -37,7 +37,7 @@ export default function ChatAssistant({ locale, mode = "floating", onQuoteClick 
   const panel = <motion.section className={`assistant-panel ${mode}`} data-testid={`assistant-${mode}-panel`} initial={mode === "floating" ? { opacity: 0, y: 18, scale: .98 } : false} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: .28 }}>
     <header><div className="assistant-title"><span><Sparkles size={13} /></span><div><p>EMA ARTBUILD</p><strong>{ui.title}</strong></div></div>{mode === "floating" && <button onClick={() => setOpen(false)} data-testid="assistant-floating-close" aria-label="Fermer l’assistant"><X size={17} /></button>}</header>
     <p className="assistant-subtitle" data-testid={`assistant-${mode}-subtitle`}>{ui.subtitle}</p>
-    <div className="assistant-messages" data-testid={`assistant-${mode}-messages`} aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`assistant-message ${message.role}`} data-testid={`assistant-${mode}-message-${index}`}>{message.content || <span className="assistant-typing"><i /><i /><i /></span>}</div>)}<div ref={endRef} /></div>
+    <div ref={messagesRef} className="assistant-messages" data-testid={`assistant-${mode}-messages`} aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`assistant-message ${message.role}`} data-testid={`assistant-${mode}-message-${index}`}>{message.content || <span className="assistant-typing"><i /><i /><i /></span>}</div>)}</div>
     {messages.length < 3 && <div className="assistant-prompts" data-testid={`assistant-${mode}-prompts`}>{ui.prompts.map((prompt, index) => <button key={prompt} onClick={() => ask(prompt)} data-testid={`assistant-${mode}-prompt-${index}`}>{prompt}<ArrowUpRight size={12} /></button>)}</div>}
     <form className="assistant-input" onSubmit={(event) => { event.preventDefault(); ask(input); }}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder={ui.placeholder} data-testid={`assistant-${mode}-input`} maxLength="1400" aria-label={ui.placeholder} /><button type="submit" disabled={!input.trim() || loading} data-testid={`assistant-${mode}-send`} aria-label={ui.send}><Send size={15} /></button></form>
     <button className="assistant-quote" onClick={onQuoteClick} data-testid={`assistant-${mode}-quote-button`}>{ui.quote}<ArrowUpRight size={14} /></button>
