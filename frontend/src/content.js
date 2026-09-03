@@ -1,11 +1,12 @@
 export const CONTACT = {
   email: "contact@emaartbuild.com",
   phone: "+212 666 777 456",
-  whatsapp: "+212 666 777 446",
+  phoneSecondary: "+212 666 777 446",
 };
 
 export const REELS_URL = "https://www.instagram.com/emaartbuild/reels/?__pwa=1";
 export const SOCIALS = [
+  ["WhatsApp", "https://wa.me/212666777456"],
   ["Instagram", "https://www.instagram.com/emaartbuild"],
   ["Facebook", "https://www.facebook.com/emaartbuild"],
   ["TikTok", "https://www.tiktok.com/@emaartbuild"],
