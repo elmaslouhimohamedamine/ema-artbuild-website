@@ -1,36 +1,40 @@
 # EMA ARTBUILD — PRD
 
 ## Demande originale
-Créer une landing page premium, visuelle et multilingue pour EMA ARTBUILD, orientée design intérieur, conception 3D, construction, rénovation, aménagement et suivi de chantier au Maroc. Le site ne doit jamais présenter le service Architecture ni inclure de champ Surface. Objectif principal : générer des demandes de devis qualifiées.
+Créer une landing page premium, visuelle et multilingue pour EMA ARTBUILD, orientée design intérieur, conception 3D, construction, rénovation, aménagement et suivi de chantier au Maroc. Ne jamais présenter le service Architecture ni ajouter de champ Surface. Objectif principal : générer des demandes de devis qualifiées.
 
 ## Décisions d’architecture
-- React + Framer Motion + Lenis pour la page one-page et ses animations éditoriales.
-- FastAPI + MongoDB pour la réception et la traçabilité des demandes de devis.
-- Resend côté serveur pour l’envoi email avec pièces jointes ; paramètres destinataire/expéditeur configurés sur contact@emaartbuild.com.
-- Hero : vidéo WebM légère et compatible en priorité, MP4 H.264 de secours, tous deux dans frontend/public/videos.
+- React + Framer Motion + Lenis pour la landing page one-page et ses animations éditoriales.
+- FastAPI + MongoDB pour les demandes de devis et l’historique persistant des échanges assistant.
+- GPT-5.6 Terra via Emergent LLM Key, réponses SSE en streaming et garde-fous sur les services EMA ARTBUILD.
+- Hero vidéo utilisateur : WebM léger en priorité, MP4 H.264 de secours et poster extrait du clip, tous dans frontend/public.
 
 ## Réalisé
 - Landing complète FR/EN/AR avec RTL arabe, navigation responsive et menu mobile.
-- Hero vidéo animé montrant des travaux de finition intérieure, reveal typographique, parallax subtil, galerie, marquée lente, sections services, méthode, preuves, contact et footer.
-- Logo EMA ARTBUILD intégré au header, footer et animation circulaire de la section vidéo.
-- Coordonnées : +212 666 777 456 et +212 666 777 446 sous Téléphone ; WhatsApp dirige vers +212 666 777 456 depuis les réseaux et le bouton flottant.
-- Réseaux : Instagram, Facebook, TikTok, Behance et WhatsApp ; liens Reels exacts conservés pour les réalisations.
-- Formulaire validé sans champ Surface, acceptant JPG/PNG/WEBP/PDF, avec stockage de la demande après acceptation d’envoi Resend.
+- Hero vidéo cinématique fourni par le client, lecture automatique validée sur mobile, cadrage cover sans déformation et poster de secours.
+- Assistant EMA avec GPT-5.6 Terra : chat flottant partout sur le site et assistant intégré à côté du formulaire de devis.
+- L’assistant qualifie un projet, répond sur les services, le processus et les zones, conserve l’historique de session et oriente vers le formulaire.
+- Logo EMA ARTBUILD intégré au header, footer et animation circulaire, avec placement mobile distinct sans chevauchement.
+- Services en beige pierre #D8D1C5 ; zone affichée : Marrakech sans “& région”.
+- Coordonnées : +212 666 777 456 et +212 666 777 446 sous Téléphone. WhatsApp dirige vers +212 666 777 456.
+- Réseaux : Instagram, Facebook, TikTok, Behance et WhatsApp ; liens Reels exacts conservés.
+- Formulaire sans Surface, avec JPG/PNG/WEBP/PDF, validation et traçabilité après envoi Resend.
 - SEO de base : title, meta description, Open Graph, favicon, robots.txt et sitemap.xml.
 
 ## Validation
-- Compilation React validée.
-- Lecture réelle du hero validée : WebM, état prêt 4, lecture automatique active.
-- Lien WhatsApp direct validé.
+- Build React validé.
+- Tests backend/front-end : 6 tests passés, y compris streaming assistant et garde-fous.
+- Vidéo hero WebM validée : readyState 4, lecture automatique active ; responsive mobile validé.
+- Assistant flottant et intégré validés sur l’URL publique.
 
 ## Backlog priorisé
 ### P0
-- Ajouter RESEND_API_KEY dans backend/.env pour activer l’envoi réel des demandes.
+- Ajouter RESEND_API_KEY dans backend/.env pour activer la livraison réelle des demandes de devis.
 ### P1
-- Remplacer les images de démonstration et la vidéo de chantier par les réalisations EMA ARTBUILD.
-- Ajouter la traduction complète, y compris champs et descriptions, pour EN/AR.
+- Remplacer les images de démonstration par les réalisations EMA ARTBUILD.
+- Finaliser toutes les traductions éditoriales en anglais et arabe.
 ### P2
 - Ajouter des pages individuelles de réalisations et une gestion éditoriale des projets.
 
 ## État actuel
-Le site et tous les liens publics sont fonctionnels. L’envoi Resend retourne volontairement une erreur explicite tant que RESEND_API_KEY n’a pas été fourni, sans confirmation trompeuse.
+Le site, la vidéo et l’assistant conversationnel sont fonctionnels. L’envoi Resend retourne volontairement une erreur explicite tant que RESEND_API_KEY n’a pas été fourni, sans confirmation trompeuse.

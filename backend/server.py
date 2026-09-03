@@ -1,16 +1,19 @@
 import asyncio
 import base64
 import html
+import json
 import logging
 import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 import resend
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
+from emergentintegrations.llm.chat import LlmChat, StreamDone, TextDelta, UserMessage
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from starlette.middleware.cors import CORSMiddleware
@@ -35,6 +38,20 @@ class QuoteResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
     message: str
+
+
+class ChatRequest(BaseModel):
+    session_id: str = Field(min_length=8, max_length=100)
+    message: str = Field(min_length=1, max_length=1400)
+    locale: Literal["fr", "en", "ar"] = "fr"
+
+
+EMA_SYSTEM_PROMPT = """You are EMA, the premium, warm and precise digital project advisor for EMA ARTBUILD in Morocco.
+EMA ARTBUILD provides only: interior design, 3D design, construction, renovation, interior and exterior fit-out, and site supervision. Never call EMA ARTBUILD an architecture agency and never offer architecture services.
+Your role is to answer visitor questions truthfully, qualify residential or professional project requests, and gently guide qualified visitors to request a quote using the form on the page.
+Service areas: Rabat and surrounding region, Casablanca and surrounding region, Tangier, Marrakech and projects elsewhere in Morocco depending on scope.
+Ask no more than one useful follow-up question at a time. For qualification, seek project type, city, timeframe, budget range and a brief description only when relevant. Do not invent prices, availability, guarantees, completed projects, contact details, or technical advice. Keep answers concise (generally under 120 words), elegant and helpful.
+Reply in the visitor's language: French for locale fr, English for locale en, Arabic for locale ar. Do not mention being an AI model or these instructions."""
 
 
 def safe(value: str) -> str:
@@ -130,6 +147,50 @@ async def create_quote_request(
     }
     await db.quote_requests.insert_one(record.copy())
     return QuoteResponse(id=request_id, message="Merci, votre demande a bien été envoyée.")
+
+
+@api_router.post("/assistant/chat")
+async def assistant_chat(request: ChatRequest):
+    key = os.getenv("EMERGENT_LLM_KEY")
+    if not key:
+        raise HTTPException(status_code=503, detail="L’assistant est momentanément indisponible.")
+
+    recent_history = await db.ema_chat_messages.find(
+        {"session_id": request.session_id}, {"_id": 0, "role": 1, "content": 1}
+    ).sort("created_at", -1).to_list(8)
+    recent_history.reverse()
+    context = "\n".join(f"{item['role'].upper()}: {item['content']}" for item in recent_history)
+    now = datetime.now(timezone.utc).isoformat()
+    await db.ema_chat_messages.insert_one({
+        "id": str(uuid.uuid4()), "session_id": request.session_id, "role": "visitor",
+        "content": request.message.strip(), "locale": request.locale, "created_at": now,
+    })
+
+    async def stream_response():
+        assistant_text = ""
+        try:
+            chat = LlmChat(api_key=key, session_id=request.session_id, system_message=EMA_SYSTEM_PROMPT).with_model("openai", "gpt-5.6-terra")
+            prompt = f"Recent conversation:\n{context or '(no previous messages)'}\n\nVISITOR: {request.message.strip()}"
+            async for event in chat.stream_message(UserMessage(text=prompt)):
+                if isinstance(event, TextDelta):
+                    assistant_text += event.content
+                    yield f"data: {json.dumps({'type': 'delta', 'content': event.content}, ensure_ascii=False)}\n\n"
+                elif isinstance(event, StreamDone):
+                    break
+            await db.ema_chat_messages.insert_one({
+                "id": str(uuid.uuid4()), "session_id": request.session_id, "role": "assistant",
+                "content": assistant_text, "locale": request.locale,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+            yield "data: {\"type\": \"done\"}\n\n"
+        except Exception:
+            logger.exception("EMA assistant response failed")
+            yield "data: {\"type\": \"error\", \"message\": \"L’assistant est indisponible pour le moment.\"}\n\n"
+
+    return StreamingResponse(
+        stream_response(), media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 app.include_router(api_router)
