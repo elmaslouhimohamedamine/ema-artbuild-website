@@ -24,7 +24,48 @@ const zones = ["Rabat & région", "Casablanca & région", "Tanger", "Marrakech",
 function App() {
   const [locale, setLocale] = useState("fr"); const t = COPY[locale];
   const { scrollY } = useScroll(); const heroY = useTransform(scrollY, [0, 800], [0, 100]);
-  useEffect(() => { const lenis = new Lenis({ lerp: 0.09, smoothWheel: true }); let frame; const raf = (time) => { lenis.raf(time); frame = requestAnimationFrame(raf); }; frame = requestAnimationFrame(raf); return () => { cancelAnimationFrame(frame); lenis.destroy(); }; }, []);
+  useEffect(() => {
+  // Toujours démarrer la homepage en haut
+  if ("scrollRestoration" in window.history) {
+    window.history.scrollRestoration = "manual";
+  }
+
+  window.scrollTo(0, 0);
+
+  // Supprime un éventuel ancien hash (#contact, #devis, etc.)
+  if (window.location.hash) {
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search
+    );
+  }
+
+  const lenis = new Lenis({
+    lerp: 0.09,
+    smoothWheel: true,
+  });
+
+  lenis.scrollTo(0, { immediate: true });
+
+  let frame;
+
+  const raf = (time) => {
+    lenis.raf(time);
+    frame = requestAnimationFrame(raf);
+  };
+
+  frame = requestAnimationFrame(raf);
+
+  return () => {
+    cancelAnimationFrame(frame);
+    lenis.destroy();
+
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "auto";
+    }
+  };
+}, []);
   const goTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   const whatsappAction = () => window.open(`https://wa.me/${CONTACT.phone.replace(/\D/g, "")}`, "_blank", "noopener,noreferrer");
   return <main className={`app locale-${locale}`} dir={locale === "ar" ? "rtl" : "ltr"}>
