@@ -8,7 +8,6 @@ const copy = {
   ar: { greeting: "مرحباً، أنا إيما. يمكنني مساعدتكم في توضيح مشروعكم والإجابة عن أسئلتكم.", title: "لنتحدث عن مساحتكم.", subtitle: "محادثة أولى لتوجيه مشروعكم.", placeholder: "أخبرنا عن مشروعكم…", send: "إرسال", quote: "اطلب عرضاً", prompts: ["أرغب في تجديد فيلا", "ما هي خدماتكم؟", "هل تعملون في مراكش؟"] },
 };
 
-const backendUrl = () => (process.env.REACT_APP_BACKEND_URL || "").trim().replace(/\/$/, "");
 const getSessionId = () => {
   const key = "ema-artbuild-chat-session"; let session = localStorage.getItem(key);
   if (!session) { session = crypto.randomUUID(); localStorage.setItem(key, session); }
@@ -22,11 +21,10 @@ export default function ChatAssistant({ locale, mode = "floating", onQuoteClick 
   useEffect(() => { const container = messagesRef.current; if (container) container.scrollTop = container.scrollHeight; }, [messages, loading]);
   const ask = async (rawMessage) => {
     const text = rawMessage.trim(); if (!text || loading) return;
+    const history = messages.slice(-8).filter((message) => message.content).map((message) => ({ role: message.role === "visitor" ? "user" : "assistant", content: message.content }));
     setInput(""); setLoading(true); setMessages((current) => [...current, { role: "visitor", content: text }, { role: "assistant", content: "" }]);
     try {
-      const baseUrl = backendUrl();
-      if (!baseUrl) throw new Error("L’assistant n’est pas configuré : REACT_APP_BACKEND_URL est manquante.");
-      const response = await fetch(`${baseUrl}/api/assistant/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: getSessionId(), message: text, locale }) });
+      const response = await fetch("/api/assistant/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: getSessionId(), message: text, locale, history }) });
       if (!response.ok || !response.body) {
         const body = await response.text();
         throw new Error(body || `Assistant indisponible (${response.status}).`);

@@ -4,8 +4,6 @@ import { LoaderCircle, Paperclip } from "lucide-react";
 const projects = ["Design intérieur", "Conception 3D", "Construction", "Rénovation", "Aménagement", "Suivi de chantier", "Autre"];
 const budgets = ["Moins de 100 000 MAD", "100 000 – 250 000 MAD", "250 000 – 500 000 MAD", "500 000 – 1 000 000 MAD", "Plus de 1 000 000 MAD", "À définir"];
 
-const backendUrl = () => (process.env.REACT_APP_BACKEND_URL || "").trim().replace(/\/$/, "");
-
 async function readJsonSafely(response) {
   const contentType = response.headers.get("content-type") || "";
   const body = await response.text();
@@ -21,10 +19,8 @@ export default function QuoteForm({ t, locale }) {
   const submit = async (event) => {
     event.preventDefault(); setStatus("loading"); setNotice("");
     try {
-      const baseUrl = backendUrl();
-      if (!baseUrl) throw new Error("Le formulaire n’est pas configuré : REACT_APP_BACKEND_URL est manquante.");
       const data = new FormData(formRef.current); data.append("locale", locale); files.forEach((file) => data.append("attachments", file));
-      const response = await fetch(`${baseUrl}/api/quote-requests`, { method: "POST", body: data });
+      const response = await fetch("/api/quote-requests", { method: "POST", body: data });
       const result = await readJsonSafely(response);
       if (!response.ok) throw new Error(result.detail || `La demande n’a pas pu être envoyée (${response.status}).`);
       setStatus("success"); setNotice(result.message || "Merci, votre demande a bien été envoyée."); formRef.current.reset(); setFiles([]);
