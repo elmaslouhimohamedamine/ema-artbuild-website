@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Lenis from "lenis";
 import { ArrowDownRight, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import "@/App.css";
 import Header from "@/components/Header";
