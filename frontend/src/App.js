@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Lenis from "lenis";
-import { ArrowDownRight, ArrowUpRight, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import "@/App.css";
 import Header from "@/components/Header";
 import ChatAssistant from "@/components/ChatAssistant";
@@ -25,23 +24,13 @@ function App() {
   const [locale, setLocale] = useState("fr"); const t = COPY[locale];
   const { scrollY } = useScroll(); const heroY = useTransform(scrollY, [0, 800], [0, 100]);
   useLayoutEffect(() => {
-    const initialHash = window.location.hash;
-    const restoreInitialPosition = () => {
-      if (initialHash === "#contact") {
-        document.getElementById("contact")?.scrollIntoView({ behavior: "auto", block: "start" });
-      } else {
-        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      }
-    };
-    const frame = window.requestAnimationFrame(() => window.requestAnimationFrame(restoreInitialPosition));
+    window.history.scrollRestoration = "manual";
+    const frame = window.requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "auto" }));
     return () => window.cancelAnimationFrame(frame);
   }, []);
   useEffect(() => { const lenis = new Lenis({ lerp: 0.09, smoothWheel: true }); let frame; const raf = (time) => { lenis.raf(time); frame = requestAnimationFrame(raf); }; frame = requestAnimationFrame(raf); return () => { cancelAnimationFrame(frame); lenis.destroy(); }; }, []);
   const goTo = (id) => {
-    if (id === "accueil") {
-      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-      return;
-    }
+    if (id === "accueil") { window.scrollTo({ top: 0, left: 0, behavior: "smooth" }); return; }
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   const whatsappAction = () => window.open(`https://wa.me/${CONTACT.phone.replace(/\D/g, "")}`, "_blank", "noopener,noreferrer");
