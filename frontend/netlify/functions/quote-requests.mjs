@@ -1,6 +1,6 @@
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MAX_TOTAL_SIZE = 10 * 1024 * 1024;
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
+const MAX_TOTAL_SIZE = 4 * 1024 * 1024;
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -39,7 +39,7 @@ export default async function handler(request) {
       const buffer = await file.arrayBuffer();
       totalSize += buffer.byteLength;
       if (buffer.byteLength > MAX_FILE_SIZE || totalSize > MAX_TOTAL_SIZE) {
-        return json({ detail: "Les pièces jointes sont limitées à 10 Mo au total (5 Mo par fichier)." }, 413);
+        return json({ detail: "Les pièces jointes sont limitées à 4 Mo au total." }, 413);
       }
       attachments.push({ filename: file.name, content: Buffer.from(buffer).toString("base64") });
     }

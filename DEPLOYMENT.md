@@ -28,4 +28,4 @@ Après avoir enregistré les variables, lancez **Trigger deploy → Deploy site*
 3. Ouvrez l’assistant, envoyez un message en français, puis une question en anglais ou arabe.
 4. Dans Netlify Functions, vérifiez l’absence d’erreur pour `quote-requests` et `assistant-chat`.
 
-Les fichiers acceptés sont JPG, PNG, WEBP et PDF, limités à 5 Mo par fichier et 10 Mo par demande.
+Les fichiers acceptés sont JPG, PNG, WEBP et PDF, limités à 4 Mo au total par demande (limite de charge utile Netlify).

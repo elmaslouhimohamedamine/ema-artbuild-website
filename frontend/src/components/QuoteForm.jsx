@@ -38,7 +38,7 @@ export default function QuoteForm({ t, locale }) {
     </div>
     <div className="file-row">
       <label className="upload-control" data-testid="attachment-label"><Paperclip size={16} /> Ajouter des photos ou des plans<input data-testid="attachment-input" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf" multiple onChange={(e) => setFiles(Array.from(e.target.files || []))} /></label>
-      <span data-testid="attachment-files-status">{files.length ? `${files.length} fichier(s) sélectionné(s)` : "JPG, PNG, WEBP ou PDF · 10 Mo maximum"}</span>
+      <span data-testid="attachment-files-status">{files.length ? `${files.length} fichier(s) sélectionné(s)` : "JPG, PNG, WEBP ou PDF · 4 Mo maximum"}</span>
     </div>
     <button className="button button-dark form-submit" data-testid="quote-submit-button" disabled={status === "loading"} type="submit">{status === "loading" ? <><LoaderCircle className="spin" size={16} /> Envoi en cours</> : t.submit}<span>↗</span></button>
     {notice && <p role="alert" className={`form-notice ${status}`} data-testid="quote-form-notice">{notice}</p>}
