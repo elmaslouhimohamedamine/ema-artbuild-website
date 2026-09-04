@@ -8,6 +8,7 @@ const copy = {
   ar: { greeting: "مرحباً، أنا إيما. يمكنني مساعدتكم في توضيح مشروعكم والإجابة عن أسئلتكم.", title: "لنتحدث عن مساحتكم.", subtitle: "محادثة أولى لتوجيه مشروعكم.", placeholder: "أخبرنا عن مشروعكم…", send: "إرسال", quote: "اطلب عرضاً", prompts: ["أرغب في تجديد فيلا", "ما هي خدماتكم؟", "هل تعملون في مراكش؟"] },
 };
 
+const backendUrl = () => (process.env.REACT_APP_BACKEND_URL || "").trim().replace(/\/$/, "");
 const getSessionId = () => {
   const key = "ema-artbuild-chat-session"; let session = localStorage.getItem(key);
   if (!session) { session = crypto.randomUUID(); localStorage.setItem(key, session); }
@@ -15,7 +16,7 @@ const getSessionId = () => {
 };
 
 export default function ChatAssistant({ locale, mode = "floating", onQuoteClick }) {
-  const ui = copy[locale]; const [open, setOpen] = useState(mode === "embedded"); const [input, setInput] = useState("");
+  const ui = copy[locale]; const [open, setOpen] = useState(false); const [input, setInput] = useState("");
   const [messages, setMessages] = useState([{ role: "assistant", content: ui.greeting }]); const [loading, setLoading] = useState(false); const messagesRef = useRef(null);
   useEffect(() => { setMessages((current) => current.length === 1 ? [{ role: "assistant", content: ui.greeting }] : current); }, [locale, ui.greeting]);
   useEffect(() => { const container = messagesRef.current; if (container) container.scrollTop = container.scrollHeight; }, [messages, loading]);
@@ -23,15 +24,22 @@ export default function ChatAssistant({ locale, mode = "floating", onQuoteClick 
     const text = rawMessage.trim(); if (!text || loading) return;
     setInput(""); setLoading(true); setMessages((current) => [...current, { role: "visitor", content: text }, { role: "assistant", content: "" }]);
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/assistant/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: getSessionId(), message: text, locale }) });
-      if (!response.ok || !response.body) throw new Error("Assistant unavailable");
+      const baseUrl = backendUrl();
+      if (!baseUrl) throw new Error("L’assistant n’est pas configuré : REACT_APP_BACKEND_URL est manquante.");
+      const response = await fetch(`${baseUrl}/api/assistant/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: getSessionId(), message: text, locale }) });
+      if (!response.ok || !response.body) {
+        const body = await response.text();
+        throw new Error(body || `Assistant indisponible (${response.status}).`);
+      }
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.toLowerCase().includes("text/event-stream")) throw new Error("Le serveur de l’assistant a renvoyé un format inattendu.");
       const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = "";
       while (true) {
         const { value, done } = await reader.read(); if (done) break; buffer += decoder.decode(value, { stream: true });
         const events = buffer.split("\n\n"); buffer = events.pop() || "";
-        events.forEach((event) => { const line = event.split("\n").find((item) => item.startsWith("data: ")); if (!line) return; const data = JSON.parse(line.slice(6)); if (data.type === "error") throw new Error(data.message); if (data.type === "delta") setMessages((current) => current.map((message, index) => index === current.length - 1 ? { ...message, content: message.content + data.content } : message)); });
+        for (const event of events) { const line = event.split("\n").find((item) => item.startsWith("data: ")); if (!line) continue; let data; try { data = JSON.parse(line.slice(6)); } catch { throw new Error("Réponse invalide de l’assistant."); } if (data.type === "error") throw new Error(data.message); if (data.type === "delta") setMessages((current) => current.map((message, index) => index === current.length - 1 ? { ...message, content: message.content + data.content } : message)); }
       }
-    } catch (error) { setMessages((current) => current.map((message, index) => index === current.length - 1 ? { role: "assistant", content: "L’assistant est momentanément indisponible. Vous pouvez nous laisser votre demande de devis." } : message)); }
+    } catch (error) { setMessages((current) => current.map((message, index) => index === current.length - 1 ? { role: "assistant", content: error instanceof Error ? error.message : "L’assistant est momentanément indisponible." } : message)); }
     finally { setLoading(false); }
   };
   const panel = <motion.section className={`assistant-panel ${mode}`} data-testid={`assistant-${mode}-panel`} initial={mode === "floating" ? { opacity: 0, y: 18, scale: .98 } : false} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: .28 }}>
